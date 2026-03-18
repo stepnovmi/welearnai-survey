@@ -7,7 +7,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/opros.css">
+    <style>
+:root{--sv-blue:#003082;--sv-blue-dark:#001F5C;--sv-blue-light:#0047BB;--sv-red:#E31E24;--sv-steel:#6B7B8D;--sv-steel-light:#8FA0B0;--sv-grey-50:#F7F8FA;--sv-grey-100:#EEF1F4;--sv-grey-200:#DDE2E8;--sv-white:#FFFFFF;--sv-text:#1A2332;--sv-text-sec:#4A5568}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,var(--sv-grey-50) 0%,var(--sv-white) 100%);min-height:100vh;padding:20px 16px;-webkit-user-select:none;user-select:none}
+.container{max-width:420px;margin:0 auto}
+.header{text-align:center;margin-bottom:24px}
+.header h1{font-size:22px;font-weight:700;color:var(--sv-text);margin-bottom:4px}
+.header p{font-size:14px;color:var(--sv-text-sec)}
+.cards-container{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.card{display:flex;align-items:center;background:var(--sv-white);border-radius:12px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:grab;transition:transform .15s,box-shadow .15s;touch-action:none}
+.card:active{cursor:grabbing}
+.card.dragging{opacity:.5;transform:scale(.98)}
+.card.drag-over{border-top:2px solid var(--sv-blue)}
+.card-rank{width:28px;height:28px;border-radius:50%;background:var(--sv-grey-100);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--sv-text);margin-right:10px;flex-shrink:0}
+.card-icon{font-size:24px;margin-right:10px;flex-shrink:0}
+.card-content{flex:1;min-width:0}
+.card-category{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.card-title{font-size:14px;font-weight:500;color:var(--sv-text);line-height:1.3}
+.card-controls{display:flex;flex-direction:column;gap:2px;margin-left:8px}
+.btn-move{width:28px;height:24px;border:none;background:var(--sv-grey-100);border-radius:6px;cursor:pointer;font-size:10px;color:var(--sv-steel);display:flex;align-items:center;justify-content:center}
+.btn-move:active{background:var(--sv-grey-200)}
+.card-drag-handle{margin-left:8px;color:var(--sv-grey-200);font-size:18px;cursor:grab}
+.expectations-section{margin-bottom:24px}
+.expectations-label{display:block;font-size:14px;font-weight:600;color:var(--sv-text);margin-bottom:8px}
+.expectations-input{width:100%;padding:12px;border:1px solid var(--sv-grey-200);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--sv-text);background:var(--sv-white);resize:vertical;min-height:80px;outline:none;transition:border-color .2s;-webkit-user-select:auto;user-select:auto}
+.expectations-input:focus{border-color:var(--sv-blue)}
+.expectations-input::placeholder{color:var(--sv-steel-light)}
+.submit-btn{width:100%;padding:16px;border:none;border-radius:12px;background:var(--sv-blue);color:var(--sv-white);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:background .2s}
+.submit-btn:hover{background:var(--sv-blue-dark)}
+.submit-btn:disabled{background:var(--sv-grey-200);cursor:not-allowed}
+.success-message{display:none;text-align:center;padding:32px;animation:fadeIn .4s}
+.success-message.show{display:block}
+.success-icon{width:64px;height:64px;border-radius:50%;background:#10B981;color:#fff;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-text{font-size:18px;font-weight:600;color:var(--sv-text)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    </style>
 </head>
 <body>
     <div class="container">
@@ -52,6 +87,20 @@
             <div class="success-text">Спасибо! Ваш ответ принят</div>
         </div>
     </div>
-    <script src="/static/js/opros.js"></script>
+    <script>
+const list=document.getElementById('sortable-list');
+let dragItem=null;
+list.addEventListener('dragstart',e=>{dragItem=e.target.closest('.card');if(dragItem)dragItem.classList.add('dragging')});
+list.addEventListener('dragend',()=>{if(dragItem)dragItem.classList.remove('dragging');document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));dragItem=null;updateRanks()});
+list.addEventListener('dragover',e=>{e.preventDefault();const t=e.target.closest('.card');if(t&&t!==dragItem){document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));t.classList.add('drag-over');const r=t.getBoundingClientRect();if(e.clientY<r.top+r.height/2)list.insertBefore(dragItem,t);else list.insertBefore(dragItem,t.nextSibling)}});
+let touchItem=null,touchClone=null,touchStartY=0;
+list.addEventListener('touchstart',e=>{const card=e.target.closest('.card');if(!card||e.target.closest('.btn-move'))return;touchItem=card;touchStartY=e.touches[0].clientY;const r=card.getBoundingClientRect();touchClone=card.cloneNode(true);touchClone.style.cssText=`position:fixed;top:${r.top}px;left:${r.left}px;width:${r.width}px;z-index:1000;opacity:0.9;box-shadow:0 8px 32px rgba(0,0,0,.15);pointer-events:none`;setTimeout(()=>{document.body.appendChild(touchClone);touchItem.style.opacity='0.3'},100)},{passive:true});
+list.addEventListener('touchmove',e=>{if(!touchItem||!touchClone)return;e.preventDefault();const y=e.touches[0].clientY;touchClone.style.top=(touchItem.getBoundingClientRect().top+(y-touchStartY))+'px';for(const card of[...list.querySelectorAll('.card')]){if(card===touchItem)continue;const r=card.getBoundingClientRect();if(y>r.top&&y<r.bottom){if(y<r.top+r.height/2)list.insertBefore(touchItem,card);else list.insertBefore(touchItem,card.nextSibling);break}}},{passive:false});
+list.addEventListener('touchend',()=>{if(touchClone){touchClone.remove();touchClone=null}if(touchItem){touchItem.style.opacity='1';touchItem=null}updateRanks()});
+function moveUp(b){const c=b.closest('.card'),p=c.previousElementSibling;if(p){list.insertBefore(c,p);updateRanks()}}
+function moveDown(b){const c=b.closest('.card'),n=c.nextElementSibling;if(n){list.insertBefore(n,c);updateRanks()}}
+function updateRanks(){list.querySelectorAll('.card').forEach((c,i)=>{c.querySelector('.card-rank').textContent=i+1})}
+function submitRanking(){const cards=list.querySelectorAll('.card');const ranking=[...cards].map(c=>parseInt(c.dataset.id));const expectations=document.getElementById('expectations-input').value.trim();const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='Отправка...';fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ranking,expectations})}).then(r=>{if(r.status===403){alert('Опрос завершён');window.location.reload();return}return r.json()}).then(d=>{if(d&&d.status==='ok'){document.getElementById('submit-btn').style.display='none';document.querySelector('.cards-container').style.display='none';document.getElementById('expectations-section').style.display='none';document.getElementById('success-message').classList.add('show')}}).catch(()=>{btn.disabled=false;btn.textContent='Отправить';alert('Ошибка отправки, попробуйте ещё раз')})}
+    </script>
 </body>
 </html>

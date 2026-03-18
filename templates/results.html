@@ -4,8 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Результаты опроса</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/results.css">
+    <style>
+:root{--sv-blue:#003082;--sv-blue-dark:#001F5C;--sv-blue-light:#0047BB;--sv-red:#E31E24;--sv-steel:#6B7B8D;--sv-steel-light:#8FA0B0;--sv-grey-50:#F7F8FA;--sv-grey-100:#EEF1F4;--sv-grey-200:#DDE2E8;--sv-white:#FFFFFF;--sv-text:#1A2332;--sv-text-sec:#4A5568;--sv-green:#0E7C47;--sv-purple:#7C3AED}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--sv-grey-50);min-height:100vh;padding:32px}
+.container{max-width:900px;margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.header h1{font-size:24px;font-weight:700;color:var(--sv-text)}
+.header-actions{display:flex;align-items:center;gap:12px}
+.response-count{font-size:14px;color:var(--sv-text-sec)}
+.response-count strong{color:var(--sv-text)}
+.btn-export{padding:8px 16px;border:1px solid var(--sv-grey-200);border-radius:8px;background:var(--sv-white);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--sv-text);cursor:pointer}
+.btn-export:hover{background:var(--sv-grey-50)}
+.btn-toggle{padding:8px 20px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-toggle.active{background:var(--sv-red);color:var(--sv-white)}
+.btn-toggle.inactive{background:#10B981;color:var(--sv-white)}
+.chart-container{background:var(--sv-white);border-radius:16px;padding:32px;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.chart-row{display:flex;align-items:center;margin-bottom:16px}
+.chart-row:last-child{margin-bottom:0}
+.chart-label{width:250px;flex-shrink:0;display:flex;align-items:center;gap:8px}
+.chart-icon{font-size:20px}
+.chart-name{font-size:14px;font-weight:500;color:var(--sv-text)}
+.chart-bar-container{flex:1;height:32px;background:var(--sv-grey-100);border-radius:8px;overflow:hidden;position:relative}
+.chart-bar{height:100%;border-radius:8px;transition:width .6s ease;min-width:0}
+.chart-score{width:60px;text-align:right;font-size:14px;font-weight:600;color:var(--sv-text);margin-left:12px}
+.expectations-container{background:var(--sv-white);border-radius:16px;padding:32px;box-shadow:0 1px 8px rgba(0,0,0,.04);margin-top:24px}
+.expectations-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.expectations-header h2{font-size:18px;font-weight:700;color:var(--sv-text)}
+.expectations-count{background:var(--sv-blue);color:var(--sv-white);font-size:12px;font-weight:600;padding:2px 10px;border-radius:12px}
+.expectations-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto}
+.expectation-card{padding:12px 16px;background:var(--sv-grey-50);border-radius:8px;font-size:14px;color:var(--sv-text);line-height:1.5;border-left:3px solid var(--sv-blue)}
+.expectations-empty{text-align:center;padding:24px;color:var(--sv-text-sec);font-size:14px}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--sv-white);border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center}
+.modal h2{font-size:20px;font-weight:700;color:var(--sv-text);margin-bottom:8px}
+.modal p{font-size:14px;color:var(--sv-text-sec);margin-bottom:24px}
+.modal-actions{display:flex;gap:12px;justify-content:center}
+.modal-btn{padding:10px 24px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.modal-cancel{background:var(--sv-grey-100);color:var(--sv-text)}
+.modal-confirm{color:var(--sv-white)}
+.modal-confirm.activate{background:#10B981}
+.modal-confirm.deactivate{background:var(--sv-red)}
+    </style>
 </head>
 <body>
     <div class="container">
@@ -17,20 +61,15 @@
                 <button class="btn-toggle" id="toggle-btn" onclick="toggleSurvey()">Остановить</button>
             </div>
         </div>
-        <div class="chart-container" id="chart-container">
-            <!-- Bars will be rendered by JS -->
-        </div>
+        <div class="chart-container" id="chart-container"></div>
         <div class="expectations-container" id="expectations-container">
             <div class="expectations-header">
                 <h2>Ожидания участников</h2>
                 <span class="expectations-count" id="expectations-count">0</span>
             </div>
-            <div class="expectations-list" id="expectations-list">
-            </div>
+            <div class="expectations-list" id="expectations-list"></div>
         </div>
     </div>
-
-    <!-- Modal -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal">
             <h2 id="modal-title">Подтверждение</h2>
@@ -41,7 +80,19 @@
             </div>
         </div>
     </div>
-
-    <script src="/static/js/results.js"></script>
+    <script>
+const TOPICS=[{id:1,icon:'🧠',title:'Основы работы нейросетей',color:'#003082'},{id:2,icon:'💼',title:'Принципы внедрения ИИ в бизнес',color:'#003082'},{id:3,icon:'✍️',title:'Основы промптинга',color:'#0E7C47'},{id:4,icon:'🔧',title:'Создание агента в NoCode (n8n)',color:'#0E7C47'},{id:5,icon:'🏭',title:'ДаВинчи и корп. системы',color:'#E31E24'},{id:6,icon:'🚀',title:'Разработка ПО за 2 часа вместо 2 лет',color:'#E31E24'},{id:7,icon:'📊',title:'Применение ИИ в вашей области',color:'#7C3AED'}];
+let isActive=true,pendingAction=null;
+function fetchStats(){fetch('/api/stats').then(r=>r.json()).then(d=>{document.getElementById('total-count').textContent=d.total;isActive=d.is_active;updateToggleButton();renderChart(d.avg_ranks);renderExpectations(d.expectations||[])}).catch(console.error)}
+function renderChart(avgRanks){const c=document.getElementById('chart-container');const sorted=TOPICS.map(t=>({...t,avg:avgRanks&&avgRanks[t.id]!==undefined?avgRanks[t.id]:4})).sort((a,b)=>a.avg-b.avg);c.innerHTML=sorted.map(t=>{const s=(7-t.avg+1).toFixed(1),p=((7-t.avg+1)/7*100).toFixed(0);return`<div class="chart-row"><div class="chart-label"><span class="chart-icon">${t.icon}</span><span class="chart-name">${t.title}</span></div><div class="chart-bar-container"><div class="chart-bar" style="width:${p}%;background:${t.color}"></div></div><div class="chart-score">${s}</div></div>`}).join('')}
+function updateToggleButton(){const b=document.getElementById('toggle-btn');if(isActive){b.textContent='Остановить';b.className='btn-toggle active'}else{b.textContent='Запустить';b.className='btn-toggle inactive'}}
+function toggleSurvey(){const m=document.getElementById('modal-overlay'),t=document.getElementById('modal-title'),p=document.getElementById('modal-text'),c=document.getElementById('modal-confirm');if(isActive){pendingAction='deactivate';t.textContent='Остановить опрос?';p.textContent='Новые ответы не будут приниматься. Данные сохранятся.';c.className='modal-btn modal-confirm deactivate';c.textContent='Остановить'}else{pendingAction='activate';t.textContent='Запустить опрос?';p.textContent='Все предыдущие ответы будут удалены. Опрос начнётся заново.';c.className='modal-btn modal-confirm activate';c.textContent='Запустить'}m.classList.add('show')}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');pendingAction=null}
+function confirmAction(){if(!pendingAction)return;fetch('/api/'+pendingAction,{method:'POST'}).then(r=>r.json()).then(()=>{closeModal();fetchStats()}).catch(console.error)}
+function exportCSV(){window.location.href='/api/export'}
+function renderExpectations(exp){document.getElementById('expectations-count').textContent=exp.length;const l=document.getElementById('expectations-list');if(!exp.length){l.innerHTML='<div class="expectations-empty">Пока нет ответов</div>';return}l.innerHTML=exp.map(t=>`<div class="expectation-card">${escapeHtml(t)}</div>`).join('')}
+function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+fetchStats();setInterval(fetchStats,5000);
+    </script>
 </body>
 </html>
