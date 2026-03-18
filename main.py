@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from db import (
-    init_db, get_db,
+    init_db,
     is_survey_active, set_survey_active,
     save_response, get_all_responses, get_response_count, clear_responses
 )
