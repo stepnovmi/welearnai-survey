@@ -13,7 +13,8 @@ from db import (
     init_db,
     is_survey_active, set_survey_active,
     save_response, get_all_responses, get_response_count, clear_responses,
-    get_all_expectations, get_all_responses_full
+    get_all_expectations, get_all_responses_full,
+    get_stats_batch
 )
 
 app = FastAPI()
@@ -71,14 +72,15 @@ def submit(data: dict, request: Request):
 
 @app.get("/api/stats")
 def stats():
-    responses = get_all_responses()
-    total = len(responses)
+    # Single HTTP request to Turso for all data
+    rankings, expectations_list, active = get_stats_batch()
+    total = len(rankings)
 
     avg_ranks = {}
     if total > 0:
         sums = {}
         counts = {}
-        for r in responses:
+        for r in rankings:
             ranking = json.loads(r)
             for pos, topic_id in enumerate(ranking):
                 sums[topic_id] = sums.get(topic_id, 0) + (pos + 1)
@@ -89,8 +91,8 @@ def stats():
     return {
         "total": total,
         "avg_ranks": avg_ranks,
-        "is_active": is_survey_active(),
-        "expectations": get_all_expectations()
+        "is_active": active,
+        "expectations": expectations_list
     }
 
 
