@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Survey — QR</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sv-blue: #003082;
+            --sv-blue-dark: #001F5C;
+            --sv-text: #1A2332;
+            --sv-text-sec: #4A5568;
+            --sv-grey-50: #F7F8FA;
+            --sv-white: #FFFFFF;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--sv-grey-50) 0%, var(--sv-white) 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .qr-container {
+            background: var(--sv-white);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            max-width: 500px;
+        }
+        .qr-container h1 {
+            color: var(--sv-blue);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .qr-container p {
+            color: var(--sv-text-sec);
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+        .qr-code {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 32px;
+        }
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+        }
+        .url {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--sv-blue);
+            margin-bottom: 24px;
+        }
+        .steps {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        .step {
+            text-align: center;
+        }
+        .step-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .step-text {
+            font-size: 14px;
+            color: var(--sv-text-sec);
+            font-weight: 500;
+        }
+        .status-bar {
+            margin-top: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse 2s infinite;
+        }
+        .status-text {
+            font-size: 14px;
+            color: var(--sv-text-sec);
+        }
+        .clock {
+            font-size: 14px;
+            color: var(--sv-text-sec);
+            font-weight: 500;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="qr-container">
+        <h1>Расставьте приоритеты обучения</h1>
+        <p>Отсканируйте QR-код камерой телефона</p>
+        <div class="qr-code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=https://welearnai.ru/opros" alt="QR Code">
+        </div>
+        <div class="url">welearnai.ru/opros</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-icon">📷</div>
+                <div class="step-text">Камера</div>
+            </div>
+            <div class="step">
+                <div class="step-icon">👆</div>
+                <div class="step-text">Наведите</div>
+            </div>
+            <div class="step">
+                <div class="step-icon">📋</div>
+                <div class="step-text">Расставьте приоритеты</div>
+            </div>
+        </div>
+        <div class="status-bar">
+            <div class="status-dot"></div>
+            <span class="status-text">Опрос активен</span>
+            <span class="clock" id="clock"></span>
+        </div>
+    </div>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>

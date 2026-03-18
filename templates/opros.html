@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Опрос — Приоритеты обучения ИИ</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/opros.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Расставьте приоритеты</h1>
+            <p>Перетащите темы в порядке важности для вас</p>
+        </div>
+        <div class="cards-container" id="sortable-list">
+            {% for item in items %}
+            <div class="card" data-id="{{ item.id }}" draggable="true">
+                <div class="card-rank">{{ loop.index }}</div>
+                <div class="card-icon">{{ item.icon }}</div>
+                <div class="card-content">
+                    <div class="card-category" style="color: {{ item.color }}">{{ item.category }}</div>
+                    <div class="card-title">{{ item.title }}</div>
+                </div>
+                <div class="card-controls">
+                    <button class="btn-move btn-up" onclick="moveUp(this)">&#9650;</button>
+                    <button class="btn-move btn-down" onclick="moveDown(this)">&#9660;</button>
+                </div>
+                <div class="card-drag-handle">&#x2630;</div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="submit-btn" id="submit-btn" onclick="submitRanking()">
+            Отправить
+        </button>
+        <div class="success-message" id="success-message">
+            <div class="success-icon">&#10003;</div>
+            <div class="success-text">Спасибо! Ваш ответ принят</div>
+        </div>
+    </div>
+    <script src="/static/js/opros.js"></script>
+</body>
+</html>

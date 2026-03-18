@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты опроса</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/results.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Результаты опроса</h1>
+            <div class="header-actions">
+                <span class="response-count">Ответов: <strong id="total-count">0</strong></span>
+                <button class="btn-export" onclick="exportCSV()">Экспорт CSV</button>
+                <button class="btn-toggle" id="toggle-btn" onclick="toggleSurvey()">Остановить</button>
+            </div>
+        </div>
+        <div class="chart-container" id="chart-container">
+            <!-- Bars will be rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title">Подтверждение</h2>
+            <p id="modal-text"></p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-cancel" onclick="closeModal()">Отмена</button>
+                <button class="modal-btn modal-confirm" id="modal-confirm" onclick="confirmAction()">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/results.js"></script>
+</body>
+</html>

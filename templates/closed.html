@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Опрос завершён</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #F7F8FA 0%, #FFFFFF 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: #DDE2E8;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; margin-bottom: 24px;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        h1 { color: #1A2332; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        p { color: #4A5568; font-size: 16px; max-width: 300px; }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div class="icon">🔒</div>
+    <h1>Опрос завершён</h1>
+    <p>Спасибо за участие! Голосование закрыто ведущим</p>
+</body>
+</html>
