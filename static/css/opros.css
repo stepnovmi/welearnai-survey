@@ -151,6 +151,43 @@ body {
     cursor: grab;
 }
 
+.expectations-section {
+    margin-bottom: 24px;
+}
+
+.expectations-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sv-text);
+    margin-bottom: 8px;
+}
+
+.expectations-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--sv-grey-200);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--sv-text);
+    background: var(--sv-white);
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-user-select: auto;
+    user-select: auto;
+}
+
+.expectations-input:focus {
+    border-color: var(--sv-blue);
+}
+
+.expectations-input::placeholder {
+    color: var(--sv-steel-light);
+}
+
 .submit-btn {
     width: 100%;
     padding: 16px;

@@ -12,7 +12,8 @@ from fastapi.templating import Jinja2Templates
 from db import (
     init_db,
     is_survey_active, set_survey_active,
-    save_response, get_all_responses, get_response_count, clear_responses
+    save_response, get_all_responses, get_response_count, clear_responses,
+    get_all_expectations, get_all_responses_full
 )
 
 app = FastAPI()
@@ -63,7 +64,8 @@ def submit(data: dict, request: Request):
     client_hash = hashlib.sha256(
         (request.headers.get("user-agent", "") + request.client.host).encode()
     ).hexdigest()
-    save_response(json.dumps(data["ranking"]), client_hash)
+    expectations = (data.get("expectations") or "").strip() or None
+    save_response(json.dumps(data["ranking"]), client_hash, expectations=expectations)
     return {"status": "ok", "total": get_response_count()}
 
 
@@ -87,7 +89,8 @@ def stats():
     return {
         "total": total,
         "avg_ranks": avg_ranks,
-        "is_active": is_survey_active()
+        "is_active": is_survey_active(),
+        "expectations": get_all_expectations()
     }
 
 
@@ -106,12 +109,12 @@ def deactivate():
 
 @app.get("/api/export")
 def export_csv():
-    responses = get_all_responses()
+    responses = get_all_responses_full()
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["id", "ranking"])
-    for i, r in enumerate(responses, 1):
-        writer.writerow([i, r])
+    writer.writerow(["id", "ranking", "expectations"])
+    for i, row in enumerate(responses, 1):
+        writer.writerow([i, row[0], row[1] or ""])
     output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),

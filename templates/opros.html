@@ -30,6 +30,18 @@
             </div>
             {% endfor %}
         </div>
+        <div class="expectations-section" id="expectations-section">
+            <label class="expectations-label" for="expectations-input">
+                Ваши ожидания от обучения
+            </label>
+            <textarea
+                class="expectations-input"
+                id="expectations-input"
+                placeholder="Напишите, что вы хотели бы узнать или чему научиться..."
+                maxlength="500"
+                rows="3"
+            ></textarea>
+        </div>
         <button class="submit-btn" id="submit-btn" onclick="submitRanking()">
             Отправить
         </button>

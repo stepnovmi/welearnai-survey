@@ -33,7 +33,14 @@ def _execute(sql, params=None):
     url, token = _get_config()
 
     if params:
-        args = [{"type": "text", "value": str(p)} for p in params]
+        args = []
+        for p in params:
+            if p is None:
+                args.append({"type": "null"})
+            elif isinstance(p, int):
+                args.append({"type": "integer", "value": str(p)})
+            else:
+                args.append({"type": "text", "value": str(p)})
         stmt = {"type": "execute", "stmt": {"sql": sql, "args": args}}
     else:
         stmt = {"type": "execute", "stmt": {"sql": sql}}
@@ -89,6 +96,11 @@ def init_db():
         )
     """)
     _execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('is_active', 'true')")
+    # Migrate: add expectations column if missing
+    try:
+        _execute("ALTER TABLE responses ADD COLUMN expectations TEXT DEFAULT NULL")
+    except RuntimeError:
+        pass
 
 
 def is_survey_active() -> bool:
@@ -103,20 +115,20 @@ def set_survey_active(active: bool):
     )
 
 
-def save_response(ranking_json: str, client_hash: str, session_id: str = 'default'):
+def save_response(ranking_json: str, client_hash: str, expectations: str = None, session_id: str = 'default'):
     rows = _execute(
         "SELECT id FROM responses WHERE client_hash = ? AND session_id = ?",
         [client_hash, session_id],
     )
     if rows:
         _execute(
-            "UPDATE responses SET ranking = ?, created_at = CURRENT_TIMESTAMP WHERE client_hash = ? AND session_id = ?",
-            [ranking_json, client_hash, session_id],
+            "UPDATE responses SET ranking = ?, expectations = ?, created_at = CURRENT_TIMESTAMP WHERE client_hash = ? AND session_id = ?",
+            [ranking_json, expectations, client_hash, session_id],
         )
     else:
         _execute(
-            "INSERT INTO responses (session_id, ranking, client_hash) VALUES (?, ?, ?)",
-            [session_id, ranking_json, client_hash],
+            "INSERT INTO responses (session_id, ranking, client_hash, expectations) VALUES (?, ?, ?, ?)",
+            [session_id, ranking_json, client_hash, expectations],
         )
 
 
@@ -128,6 +140,22 @@ def get_all_responses(session_id: str = 'default') -> list:
 def get_response_count(session_id: str = 'default') -> int:
     rows = _execute("SELECT COUNT(*) FROM responses WHERE session_id = ?", [session_id])
     return rows[0][0] if rows else 0
+
+
+def get_all_expectations(session_id: str = 'default') -> list:
+    rows = _execute(
+        "SELECT expectations FROM responses WHERE session_id = ? AND expectations IS NOT NULL AND expectations != ''",
+        [session_id],
+    )
+    return [row[0] for row in rows]
+
+
+def get_all_responses_full(session_id: str = 'default') -> list:
+    rows = _execute(
+        "SELECT ranking, expectations FROM responses WHERE session_id = ?",
+        [session_id],
+    )
+    return rows
 
 
 def clear_responses(session_id: str = 'default') -> int:

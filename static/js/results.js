@@ -19,6 +19,7 @@ function fetchStats() {
             isActive = data.is_active;
             updateToggleButton();
             renderChart(data.avg_ranks);
+            renderExpectations(data.expectations || []);
         })
         .catch(console.error);
 }
@@ -105,6 +106,24 @@ function confirmAction() {
 
 function exportCSV() {
     window.location.href = '/api/export';
+}
+
+function renderExpectations(expectations) {
+    document.getElementById('expectations-count').textContent = expectations.length;
+    const list = document.getElementById('expectations-list');
+    if (expectations.length === 0) {
+        list.innerHTML = '<div class="expectations-empty">Пока нет ответов</div>';
+        return;
+    }
+    list.innerHTML = expectations.map(text =>
+        `<div class="expectation-card">${escapeHtml(text)}</div>`
+    ).join('');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Initial load and polling

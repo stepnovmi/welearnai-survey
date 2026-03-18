@@ -126,6 +126,7 @@ function updateRanks() {
 function submitRanking() {
     const cards = list.querySelectorAll('.card');
     const ranking = [...cards].map(c => parseInt(c.dataset.id));
+    const expectations = document.getElementById('expectations-input').value.trim();
 
     const btn = document.getElementById('submit-btn');
     btn.disabled = true;
@@ -134,7 +135,7 @@ function submitRanking() {
     fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ranking })
+        body: JSON.stringify({ ranking, expectations })
     })
     .then(res => {
         if (res.status === 403) {
@@ -148,6 +149,7 @@ function submitRanking() {
         if (data && data.status === 'ok') {
             document.getElementById('submit-btn').style.display = 'none';
             document.querySelector('.cards-container').style.display = 'none';
+            document.getElementById('expectations-section').style.display = 'none';
             document.getElementById('success-message').classList.add('show');
         }
     })
